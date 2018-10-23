@@ -1,0 +1,160 @@
+package framework.actions_web;
+
+import com.google.common.base.Function;
+import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.*;
+
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.JavascriptExecutor;
+import org.testng.Assert;
+
+import stepdefinition.SharedSD;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * Created by Tahir Qayyum on 10/10/18.
+ */
+public class BasePage {
+    Actions a = new Actions(SharedSD.getDriver());
+
+    public static WebElement webAction(final By locator) {
+        Wait<WebDriver> wait = new FluentWait<WebDriver>(SharedSD.getDriver())
+                .withTimeout(15, TimeUnit.SECONDS)
+                .pollingEvery(1, TimeUnit.SECONDS)
+                .ignoring(NoSuchElementException.class)
+                .ignoring(StaleElementReferenceException.class)
+                .withMessage("Webdriver waited for 15 seconds but still could not find the element therefore Timeout Exception has been thrown");
+        WebElement element = wait.until(new Function<WebDriver, WebElement>() {
+            public WebElement apply(WebDriver driver){
+                return driver.findElement(locator);
+            }
+        });
+        return element;
+    }
+
+	public void clickOn(By locator) {
+		try {
+			webAction(locator).click();
+		} catch (NoSuchElementException e) {
+			Assert.fail("Element is not found with this locator: " + locator.toString());
+			e.printStackTrace();
+		}
+	}
+
+	public void sendText(By locator, String text) {
+		try {
+			webAction(locator).sendKeys(text);
+		} catch (NoSuchElementException e) {
+			Assert.fail("Element is not found with this locator: " + locator.toString());
+			e.printStackTrace();
+		}
+	}
+
+	public String getText(By locator) {
+		String text = null;
+		try {
+			text = webAction(locator).getText();
+		} catch (NoSuchElementException e) {
+			Assert.fail("Element is not found with this locator: " + locator.toString());
+			e.printStackTrace();
+		}
+		return text;
+	}
+
+    public void setDropDownValue(By locator, String expectedText) {
+        try {
+            List<WebElement> options = SharedSD.getDriver().findElements(locator);
+            for (WebElement option : options) {
+                if (option.getText().equals(expectedText)) {
+                    option.click();
+                    break;
+                }
+            }
+        } catch (NoSuchElementException e) {
+            Assert.fail("Element is not found with this locator: " + locator.toString());
+            e.printStackTrace();
+        }
+    }
+
+    public static void switchToFrame(By locator) {
+        try {
+            WebElement myFrame = webAction(locator);
+            SharedSD.getDriver().switchTo().frame(myFrame);
+        } catch (NoSuchElementException e) {
+            Assert.fail("Element is not found with this locator: " + locator.toString());
+            e.printStackTrace();
+        }
+    }
+
+    public void compareText(By locator, String expectTxt){
+        try {
+            Assert.assertEquals(getText(locator), expectTxt);
+        } catch (NoSuchElementException e) {
+            Assert.fail("Element is not found with this locator: " + locator.toString());
+            e.printStackTrace();
+        }
+    }
+
+    public void rightClick(By locator) {
+        try {
+            WebElement element = webAction(locator);
+            a.contextClick(element).perform();
+        } catch (NoSuchElementException e) {
+            Assert.fail("Element is not found with this locator: " + locator.toString());
+            e.printStackTrace();
+        }
+    }
+
+    public void waitFor(int millisecond) throws InterruptedException { Thread.sleep(millisecond); }
+
+    public void compareFiles(String filePath1, String filePath2) throws IOException {
+        try {
+            File file1 = new File(filePath1);
+            File file2 = new File(filePath2);
+            FileUtils.contentEquals(file1,file2);
+        } catch (NoSuchElementException e) {
+            Assert.fail("No file found in this path: " + filePath1 + "and "+ filePath2);
+            e.printStackTrace();
+        }
+    }
+
+    public void injectTxtWithJS(WebElement element, String expectedText) {
+        //WebElement element = webAction(locator);
+        JavascriptExecutor js = (JavascriptExecutor) SharedSD.getDriver();
+        String command = String.format("arguments[0].value='%s';", expectedText );
+        js.executeScript(command, element);
+    }
+
+
+    public static void switchToWindow(int index) {
+        try {
+            List<String> listOfWindows =
+                    new ArrayList<String>(SharedSD.getDriver().getWindowHandles());
+            SharedSD.getDriver().switchTo().window(listOfWindows.get(index));
+        } catch (NoSuchElementException e) {
+            Assert.fail("There is no tab at: " + index);
+            e.printStackTrace();
+        }
+
+    }
+
+    public void clickOnAndWait(By locator) {
+        try {
+            WebDriverWait wait = new WebDriverWait(SharedSD.getDriver(), 10);
+            WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
+            element.click();
+        } catch (NoSuchElementException e) {
+            Assert.fail("Element is not found with this locator: " + locator.toString());
+            e.printStackTrace();
+        }
+    }
+}
