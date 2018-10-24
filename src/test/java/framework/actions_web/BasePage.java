@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class BasePage {
     Actions a = new Actions(SharedSD.getDriver());
 
+    //This method allows the chrome driver to wait.
     public static WebElement webAction(final By locator) {
         Wait<WebDriver> wait = new FluentWait<WebDriver>(SharedSD.getDriver())
                 .withTimeout(15, TimeUnit.SECONDS)
@@ -41,6 +42,7 @@ public class BasePage {
         return element;
     }
 
+    //This method is to click on an element
 	public void clickOn(By locator) {
 		try {
 			webAction(locator).click();
@@ -50,6 +52,7 @@ public class BasePage {
 		}
 	}
 
+	//This method is to send text from an element
 	public void sendText(By locator, String text) {
 		try {
 			webAction(locator).sendKeys(text);
@@ -59,6 +62,7 @@ public class BasePage {
 		}
 	}
 
+	//This method is a get the text of a an element
 	public String getText(By locator) {
 		String text = null;
 		try {
@@ -70,6 +74,7 @@ public class BasePage {
 		return text;
 	}
 
+	//This method is to select in a dropdown with an array
     public void setDropDownValue(By locator, String expectedText) {
         try {
             List<WebElement> options = SharedSD.getDriver().findElements(locator);
@@ -85,6 +90,7 @@ public class BasePage {
         }
     }
 
+    //This method is to switch to an iframe
     public static void switchToFrame(By locator) {
         try {
             WebElement myFrame = webAction(locator);
@@ -95,6 +101,7 @@ public class BasePage {
         }
     }
 
+    //This method is to compare the text
     public void compareText(By locator, String expectTxt){
         try {
             Assert.assertEquals(getText(locator), expectTxt);
@@ -104,6 +111,7 @@ public class BasePage {
         }
     }
 
+    //This method is to right on an element
     public void rightClick(By locator) {
         try {
             WebElement element = webAction(locator);
@@ -114,8 +122,10 @@ public class BasePage {
         }
     }
 
+    //This method allows the chrome driver to wait.
     public void waitFor(int millisecond) throws InterruptedException { Thread.sleep(millisecond); }
 
+    //This method allows the compare a files
     public void compareFiles(String filePath1, String filePath2) throws IOException {
         try {
             File file1 = new File(filePath1);
@@ -127,6 +137,7 @@ public class BasePage {
         }
     }
 
+    //This method is to infect text into an element via javascript
     public void injectTxtWithJS(WebElement element, String expectedText) {
         //WebElement element = webAction(locator);
         JavascriptExecutor js = (JavascriptExecutor) SharedSD.getDriver();
@@ -134,7 +145,7 @@ public class BasePage {
         js.executeScript(command, element);
     }
 
-
+    //This method is to switch the tab in an open window
     public static void switchToWindow(int index) {
         try {
             List<String> listOfWindows =
@@ -147,6 +158,7 @@ public class BasePage {
 
     }
 
+    //This method is to click on an element and wait for n number of time
     public void clickOnAndWait(By locator) {
         try {
             WebDriverWait wait = new WebDriverWait(SharedSD.getDriver(), 10);
